@@ -2,6 +2,28 @@
 Grafana Quick Log Panel Plugin
 
 
+## Options
+
+### 1) Inline custom css
+
+Possible to add custom css to the panel. Each row has custom class name. To check your current class list, please inspect your DOM.
+
+Example:
+
+```css
+.ql-name-message{flex-grow:1;max-width:54%}
+```
+
+### 1) Value includes list
+
+Possible to add extra css for the values. Only need to type the filter text and separate the css with `||` double pipe. Syntax: `foo bar ||color:red;`. `foo bar ` is the search text, `color:red;` is the custom css. For the custom css do not need to use `{}` curly brackets.
+
+Example:
+
+```css
+foo bar ||color:red;
+```
+
 ## Getting started
 
 1. Install dependencies
@@ -29,7 +51,7 @@ Grafana Quick Log Panel Plugin
    ```
 
 
-   ## Learn more
+## Learn more
 
 - [Build a panel plugin tutorial](https://grafana.com/tutorials/build-a-panel-plugin)
 - [Grafana documentation](https://grafana.com/docs/)
