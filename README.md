@@ -26,7 +26,7 @@ foo bar ||color:red;
 
 ### 3) Quick search
 
-During the list browsing possible ti quick filter the current list. Type the text. The search text and value lines are converted to lowerCase.  
+During the list browsing possible to quick filter the current list. Type the text. The search text and value lines are converted to lowerCase.  
 
 
 ## Getting started
