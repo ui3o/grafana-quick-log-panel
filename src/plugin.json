@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "panel",
+  "name": "Grafana Quick Log Panel Plugin",
+  "id": "ui3o-quicklog-panel",
+
+  "info": {
+    "description": "Grafana Quick Log Panel Plugin",
+    "author": {
+      "name": "ui3o.com"
+    },
+    "keywords": ["panel", "template"],
+    "logos": {
+      "small": "img/qlogo.svg",
+      "large": "img/qlogo.svg"
+    },
+    "links": [
+      {"name": "Website", "url": "https://github.com/ui3o/grafana-quick-log-panel"},
+      {"name": "License", "url": "https://github.com/ui3o/grafana-quick-log-panel/blob/main/LICENSE"}
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+
+  "dependencies": {
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
+  }
+}
