@@ -14,7 +14,7 @@ Example:
 .ql-name-message{flex-grow:1;max-width:54%}
 ```
 
-### 1) Value includes list
+### 2) Value includes list
 
 Possible to add extra css for the values. Only need to type the filter text and separate the css with `||` double pipe. Syntax: `foo bar ||color:red;`. `foo bar ` is the search text, `color:red;` is the custom css. For the custom css do not need to use `{}` curly brackets.
 
@@ -32,13 +32,7 @@ foo bar ||color:red;
    yarn install
    ```
 
-2. Build plugin in development mode or run in watch mode
-
-   ```bash
-   yarn dev
-   ```
-
-   or
+2. Build plugin in watch mode
 
    ```bash
    yarn watch
