@@ -11,7 +11,7 @@ Possible to add custom css to the panel. Each row has custom class name. To chec
 Example:
 
 ```css
-.ql-name-message{flex-grow:1;max-width:54%}
+.ql-name-message{flex-grow:1;max-width:54%}.ql-data-multiitem-button{color:green !important;}
 ```
 
 ### 2) Value include list

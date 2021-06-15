@@ -98,8 +98,10 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                                 <div style={{ display: 'flex' }}>
                                   {_firstLine}
                                   <button
+                                    className="ql-data-multiitem-button"
                                     title="Click to open multilines"
                                     style={{
+                                      display: 'flex',
                                       backgroundColor: 'rgb(0 0 0 / 0%)',
                                       border: 'none',
                                       color: 'orange',
