@@ -5,6 +5,9 @@ import { QuickLogOptions } from 'types';
 interface Props extends PanelProps<QuickLogOptions> {}
 interface State {
   input: string;
+  multiLines: {
+    [key: string]: boolean;
+  };
 }
 
 interface CustomStyle {
@@ -13,7 +16,7 @@ interface CustomStyle {
 }
 
 export class QuickLogPanel extends React.PureComponent<Props, State> {
-  state: State = { input: '' };
+  state: State = { input: '', multiLines: {} };
 
   constructor(props: Props) {
     super(props);
@@ -31,6 +34,17 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
       _nameStyles.push({ pattern: _prop[0], style: _style });
     });
     return _nameStyles;
+  }
+
+  toggleVisibility(id: string) {
+    const multiLines = { ...this.state.multiLines };
+    console.log('toggleVisibility', id, this.state.multiLines[id]);
+    multiLines[id] = !multiLines[id];
+    this.setState({ input: this.state.input, multiLines });
+  }
+
+  multilineDisplayStatus(id: string): string {
+    return this.state.multiLines[id] ? 'block' : 'none';
   }
 
   render() {
@@ -58,7 +72,7 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                       frame.fields.map((field) => {
                         line += ` ${JSON.stringify(field.values.get(i)).replace(/\"/g, '')}`;
                       });
-                      if (!line.includes(this.state.input)) {
+                      if (!line.toLowerCase().includes(this.state.input.toLowerCase())) {
                         isVisible = false;
                       }
                     }
@@ -68,19 +82,54 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                         style={{ display: isVisible ? 'flex' : 'none', borderBottom: 'solid 1px #3d3d3d' }}
                       >
                         {frame.fields.map((field, j) => {
-                          const _value = JSON.stringify(field.values.get(i)).replace(/\"/g, '');
+                          const _value = JSON.stringify(field.values.get(i)).replace(/\"/g, '').replace(/\\n/g, '\n');
                           const _valueCss = valueStyles.find((cs) => _value.includes(cs.pattern))?.style;
                           const css = _valueCss ? _valueCss : {};
                           const _className = `ql-data-element ql-name-${field.name.replace(/[@,_]/g, '-')}`;
                           css['marginRight'] = '1em';
-                          css['alignItems'] = 'center';
+                          css['alignItems'] = 'flex-start';
                           css['display'] = 'flex';
-
-                          return (
-                            <div key={`ql-data-item${i}-${j}`} className={_className} style={css}>
-                              {_value}
-                            </div>
-                          );
+                          if (_value.includes('\n')) {
+                            const _lines = _value.split('\n');
+                            const _firstLine = _lines.shift();
+                            css['flexDirection'] = 'column';
+                            return (
+                              <div key={`ql-data-item${i}-${j}`} className={_className} style={css}>
+                                <div style={{ display: 'flex' }}>
+                                  {_firstLine}
+                                  <button
+                                    title="Click to open multilines"
+                                    style={{
+                                      backgroundColor: 'rgb(0 0 0 / 0%)',
+                                      border: 'none',
+                                      color: 'orange',
+                                      padding: 0,
+                                      marginLeft: '2em',
+                                    }}
+                                    onClick={() => this.toggleVisibility(`.ql-data-multiitem${i}-${j}`)}
+                                  >
+                                    multiline
+                                  </button>
+                                </div>
+                                <div
+                                  className={`ql-data-multiitem${i}-${j}`}
+                                  style={{
+                                    whiteSpace: 'pre-line',
+                                    wordBreak: 'break-all',
+                                    display: this.multilineDisplayStatus(`.ql-data-multiitem${i}-${j}`),
+                                  }}
+                                >
+                                  {_lines.join('\n')}
+                                </div>
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div key={`ql-data-item${i}-${j}`} className={_className} style={css}>
+                                {_value}
+                              </div>
+                            );
+                          }
                         })}
                       </div>
                     );
@@ -103,7 +152,7 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
     );
   }
   _setInput(target: any) {
-    this.setState({ input: target.value });
+    this.setState({ input: target.value, multiLines: this.state.multiLines });
     console.log(`new value on inputChange: ${target.value}`);
   }
 }
