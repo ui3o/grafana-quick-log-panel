@@ -14,7 +14,7 @@ Example:
 .ql-name-message{flex-grow:1;max-width:54%}
 ```
 
-### 2) Value includes list
+### 2) Value include list
 
 Possible to add extra css for the values. Only need to type the filter text and separate the css with `||` double pipe. Syntax: `foo bar ||color:red;`. `foo bar ` is the search text, `color:red;` is the custom css. For the custom css do not need to use `{}` curly brackets.
 
@@ -23,6 +23,11 @@ Example:
 ```css
 foo bar ||color:red;
 ```
+
+### 3) Quick search
+
+During the list browsing possible ti quick filter the current list. Type the text. The search text and value lines are converted to lowerCase.  
+
 
 ## Getting started
 
