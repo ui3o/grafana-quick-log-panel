@@ -1,5 +1,8 @@
 # Changelog
 
-## 1.0.0 (Unreleased)
+## [1.0.0] - 2021-06-15
 
-Initial release.
+#### Added
+
+* Initial release
+* Feature is written in readme
