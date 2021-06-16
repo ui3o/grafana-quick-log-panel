@@ -57,7 +57,10 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
         {console.log('options valueStyles', this.props.options.valueStyles)}
         {this.props.data.series.map((frame) => {
           return (
-            <div key={`ql-main-container`} style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+            <div
+              key={`ql-main-container`}
+              style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: this.props.width }}
+            >
               <div style={{ display: 'flex', flexGrow: 1 }}>
                 {console.log(`height change: ${this.props.height}`)}
                 <div style={{ overflow: 'auto', height: this.props.height - 37, flexGrow: 1 }}>
