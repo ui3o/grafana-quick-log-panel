@@ -5,7 +5,7 @@ import { QuickLogPanel } from './QuickLogPanel';
 export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOptions((builder) => {
   return builder
     .addTextInput({
-      name: 'Inline custom css',
+      name: 'Custom css',
       path: 'customCss',
       description: 'Paste your inline custom css.',
       defaultValue: '',

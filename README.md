@@ -4,9 +4,9 @@ Grafana Quick Log Panel Plugin
 
 ## Options
 
-### 1) Inline custom css
+### 1) Custom css
 
-Possible to add custom css to the panel. Each row has custom class name. To check your current class list, please inspect your DOM.
+Possible to add custom inline css to the panel. Each row has custom class name. To check your current class list, please inspect your DOM.
 
 Example:
 
