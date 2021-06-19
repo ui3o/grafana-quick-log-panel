@@ -1,4 +1,5 @@
 import { PanelProps } from '@grafana/data';
+// import { QuickLogConfigure } from 'QuickLogConfigure';
 import React from 'react';
 import { QuickLogOptions } from 'types';
 
@@ -49,8 +50,8 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
 
   render() {
     const valueStyles: CustomStyle[] = this.cssTransformer(this.props.options.valueStyles);
-
     console.log('valueStyles val', JSON.stringify(valueStyles));
+
     return (
       <div style={{ display: 'flex', height: '100%', fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace' }}>
         <style>{this.props.options.customCss}</style>
