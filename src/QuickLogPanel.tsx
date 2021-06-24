@@ -86,14 +86,14 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                         style={{ display: isVisible ? 'flex' : 'none', borderBottom: 'solid 1px #3d3d3d' }}
                       >
                         {frame.fields.map((field, j) => {
-                          const _value = JSON.stringify(field.values.get(i)).replace(/\"/g, '').replace(/\\n/g, '\n');
-                          const _valueCss = valueStyles.find((cs) => _value.includes(cs.pattern))?.style;
+                          const _value = JSON.stringify(field.values.get(i))?.replace(/\"/g, '').replace(/\\n/g, '\n');
+                          const _valueCss = valueStyles.find((cs) => _value?.includes(cs.pattern))?.style;
                           const css = _valueCss ? _valueCss : {};
                           const _className = `ql-data-element ql-name-${field.name.replace(/[@,_]/g, '-')}`;
                           css['marginRight'] = '1em';
                           css['alignItems'] = 'flex-start';
                           css['display'] = 'flex';
-                          if (_value.includes('\n')) {
+                          if (_value?.includes('\n')) {
                             const _lines = _value.split('\n');
                             const _firstLine = _lines.shift();
                             css['flexDirection'] = 'column';

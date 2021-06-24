@@ -1,46 +1,57 @@
-import { Drawer, IconButton, Input } from '@grafana/ui';
+import { StandardEditorContext } from '@grafana/data';
+import {
+  Alert,
+  AlertVariant,
+  Checkbox,
+  Drawer,
+  HorizontalGroup,
+  Icon,
+  Input,
+  ToolbarButton,
+  ToolbarButtonRow,
+  VerticalGroup,
+} from '@grafana/ui';
 import { Dashboard, Panel } from 'dto/dashboard.dto';
 import { Dashboards } from 'dto/dashboards.dto';
 import React from 'react';
 
 interface Props {
   onClose: () => void;
+  context: StandardEditorContext<any>;
 }
 interface State {
-  isOpen: boolean;
+  saveStatus?: {
+    visible?: boolean;
+    severity?: AlertVariant;
+    title?: string;
+  };
+  filter: string;
+  saveInProgress?: boolean;
+  showEqualsOnly?: boolean;
+  isOpen?: boolean;
   dashboards: Dashboard[];
   panels: Panel[];
 }
 
 export class QuickLogConfigure extends React.PureComponent<Props, State> {
   state: State = {
-    isOpen: false,
+    filter: '',
     dashboards: [],
     panels: [],
   };
+  prefixEl = (<Icon name="filter" />);
 
   constructor(props: Props) {
     super(props);
     console.log('QuickLogConfigure const.');
   }
 
-  addPanel(panel: Panel) {
-    this.setState({
-      isOpen: this.state.isOpen,
-      dashboards: this.state.dashboards,
-      panels: [...this.state.panels, panel],
-    });
-  }
-
-  addDashboards(dashboard: Dashboard) {
-    this.setState({
-      isOpen: this.state.isOpen,
-      dashboards: [...this.state.dashboards, dashboard],
-      panels: this.state.panels,
-    });
-  }
-
   async componentDidMount() {
+    await this.initialize();
+  }
+
+  async initialize() {
+    this.setState({ ...this.state, dashboards: [], panels: [] });
     const response = await fetch(`./api/search?limit=5000`);
     const dashboards: Dashboards[] = await response.json();
     dashboards.forEach(async (d) => {
@@ -51,13 +62,26 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
           dashboard.dashboard.panels.forEach((p) => {
             const _panel: Panel = { ...p };
             if (_panel.type === 'ui3o-quicklog-panel') {
-              _panel._visible_ = true;
-              _panel._name_ = `${dashboard.meta.folderTitle}/${dashboard.dashboard.title}/${_panel.title}`;
+              _panel._equal_ = JSON.stringify(_panel.options) === JSON.stringify(this.props.context.options);
+              _panel._marked_ = false;
+              _panel._visible_ = !_panel._equal_;
+              _panel._name_ = `${dashboard.meta?.folderTitle}/${dashboard.dashboard.title}/${_panel.title}`;
+              _panel._id_ = `${dashboard.meta?.folderTitle}/${dashboard.dashboard.title}/${_panel.id}`;
               _panel._dashboardUid_ = dashboard.dashboard.uid;
-              this.addPanel(_panel);
+              dashboard.folderId = dashboard.meta?.folderId;
+              dashboard.folderUid = dashboard.meta?.folderUid;
+              dashboard.overwrite = true;
+              dashboard.message = 'ui3o-quicklog-panel setting update';
+              this.setState({
+                ...this.state,
+                panels: [...this.state.panels, _panel],
+              });
             }
           });
-          this.addDashboards(dashboard);
+          this.setState({
+            ...this.state,
+            dashboards: [...this.state.dashboards, dashboard],
+          });
         }
       }
     });
@@ -68,150 +92,199 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
   }
 
   setPanelToEqual(panel: Panel) {
-    panel._visible_ = !panel._visible_;
+    panel._marked_ = !panel._marked_;
     const _panels = [...this.state.panels];
-    const _index = _panels.findIndex((p) => p._name_ === panel._name_);
+    const _index = _panels.findIndex((p) => p._id_ === panel._id_);
     _panels[_index] = { ...panel };
     this.setState({
-      isOpen: this.state.isOpen,
-      dashboards: this.state.dashboards,
+      ...this.state,
       panels: _panels,
     });
     console.log(panel);
   }
 
   render() {
-    console.log('config mode');
     return (
       <Drawer
         title="Migrate"
         subtitle="Migrate current QuickLog Panel Settings to other Dashboard panels"
-        closeOnMaskClick={false}
+        closeOnMaskClick={true}
         scrollableContent={true}
         width="40%"
         onClose={() => {
           this.props.onClose();
         }}
       >
-        <div style={{ padding: '10px' }}>
-          <Input prefix="text" type="text" placeholder="Type to filter " />
-          <ul>
-            {this.state.panels.map((p) => {
-              return (
-                <li key={p._name_}>
-                  <IconButton
-                    style={{ color: 'green' }}
-                    name={p._visible_ ? 'circle' : 'check-circle'}
-                    size="sm"
-                    onClick={() => {
-                      this.setPanelToEqual(p);
-                    }}
-                  />
-                  {p._name_}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {this.state.saveStatus?.visible && (
+          <Alert
+            title={this.state.saveStatus.title ? this.state.saveStatus.title : ''}
+            severity={this.state.saveStatus.severity}
+            onRemove={() => {
+              this.setState({ ...this.state, saveStatus: { visible: false } });
+            }}
+          />
+        )}
+        <VerticalGroup>
+          <Input
+            prefix={this.prefixEl}
+            type="text"
+            placeholder="Type to filter "
+            value={this.state.filter}
+            onInput={(e) => this._setInput(e.target)}
+            disabled={this.state.saveInProgress}
+          />
+          <HorizontalGroup justify="flex-end">
+            <ToolbarButtonRow>
+              <ToolbarButton
+                icon={this.state.showEqualsOnly ? 'arrow-random' : 'exchange-alt'}
+                tooltip={
+                  this.state.showEqualsOnly
+                    ? 'Show only panels with not the same options'
+                    : 'Show only panels with same options'
+                }
+                onClick={() => this.toggleEqualsOnly()}
+                disabled={this.state.saveInProgress}
+              >
+                {this.state.showEqualsOnly ? 'Distinct' : 'Equal'}
+              </ToolbarButton>
+              <ToolbarButton
+                icon={this.isMarkedAny() ? 'circle' : 'check-circle'}
+                tooltip="Select for changes only filtered"
+                variant="active"
+                disabled={this.state.showEqualsOnly || this.state.saveInProgress}
+                onClick={() => this.toggleMarkAll()}
+              >
+                {this.isMarkedAny() ? 'Deselect all' : 'Select all'}
+              </ToolbarButton>
+              <ToolbarButton
+                icon={this.state.saveInProgress ? 'fa fa-spinner' : 'cloud-upload'}
+                tooltip="Save changes"
+                variant="primary"
+                onClick={() => this.save()}
+                disabled={this.state.showEqualsOnly || !this.isAnyChanged() || this.state.saveInProgress}
+              >
+                Save
+              </ToolbarButton>
+            </ToolbarButtonRow>
+          </HorizontalGroup>
+          <div style={{ paddingLeft: '1em' }}>
+            <VerticalGroup>
+              {this.state.panels.map((p) => {
+                return (
+                  <div style={{ display: p._visible_ ? 'block' : 'none' }}>
+                    <Checkbox
+                      key={p._id_}
+                      value={p._equal_ ? true : p._marked_}
+                      onChange={() => {
+                        this.setPanelToEqual(p);
+                      }}
+                      label={p._name_}
+                      disabled={p._equal_ || this.state.saveInProgress}
+                    />
+                  </div>
+                );
+              })}
+            </VerticalGroup>
+          </div>
+        </VerticalGroup>
       </Drawer>
     );
   }
+
+  async save() {
+    this.setState({ ...this.state, saveInProgress: true });
+    const _dashboards = [...this.state.dashboards];
+    this.state.panels.forEach((p) => {
+      if (!p._equal_ && p._marked_) {
+        _dashboards.forEach((d) => {
+          if (d.dashboard.uid === p._dashboardUid_) {
+            d.dashboard.panels.forEach((dp) => {
+              if (dp.id === p.id) {
+                dp.options = { ...this.props.context.options };
+                d._changed_ = true;
+              }
+            });
+          }
+        });
+      }
+    });
+    console.log('save start', _dashboards);
+    const _changes = _dashboards.filter((d) => d._changed_);
+    for (const d of _changes) {
+      const _d = { ...d };
+      delete _d.meta;
+      delete _d._changed_;
+      await fetch(`./api/dashboards/db`, {
+        method: 'post',
+        body: JSON.stringify(_d),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    this.setState({
+      ...this.state,
+      saveInProgress: false,
+      saveStatus: { title: 'Save: Success', severity: 'success', visible: true },
+    });
+    console.log('save done', _changes);
+    await this.initialize();
+  }
+
+  isAnyChanged(): boolean {
+    return this.state.panels.some((p) => p._marked_);
+  }
+
+  isMarkedAny(): boolean {
+    return this.state.panels.some((p) => p._marked_ && p._visible_);
+  }
+
+  toggleMarkAll(): void {
+    const _panels = [...this.state.panels];
+    const _isMarkedAny = this.isMarkedAny();
+    _panels.forEach((p) => {
+      if (p._visible_) {
+        p._marked_ = !_isMarkedAny;
+      }
+    });
+    this.setState({
+      ...this.state,
+      panels: _panels,
+    });
+  }
+
+  _setInput(target: any) {
+    const _input: string = target.value;
+    const _panels = [...this.state.panels];
+    _panels.forEach((p) => {
+      if (!_input.length || p._name_.toLowerCase().includes(_input.toLowerCase())) {
+        p._visible_ = this.state.showEqualsOnly ? p._equal_ : !p._equal_;
+      } else {
+        p._visible_ = false;
+      }
+    });
+    this.setState({
+      ...this.state,
+      filter: _input,
+      panels: _panels,
+    });
+    console.log(`new value on inputChange: ${target.value}`);
+  }
+
+  toggleEqualsOnly() {
+    const _panels = [...this.state.panels];
+    const _equalsOnly = !this.state.showEqualsOnly;
+    _panels.forEach((p) => {
+      p._visible_ = _equalsOnly ? p._equal_ : !p._equal_;
+      if (this.state.filter.length && !p._name_.toLowerCase().includes(this.state.filter.toLowerCase())) {
+        p._visible_ = false;
+      }
+    });
+    this.setState({
+      ...this.state,
+      showEqualsOnly: _equalsOnly,
+      panels: _panels,
+    });
+    console.log(`toggleEqualsOnly: ${_equalsOnly}`);
+  }
 }
-// <div style={{ display: 'flex', height: '100%', fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace' }}>
-//   <style>{this.props.options.customCss}</style>
-// </div>
-// {console.log('options valueStyles', this.props.options.valueStyles)}
-// <div
-//   key={`ql-main-container`}
-//   style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: this.props.width }}
-// >
-//   <div style={{ display: 'flex', flexGrow: 1 }}>
-//     {console.log(`height change: ${this.props.height}`)}
-//     <div style={{ overflow: 'auto', height: this.props.height - 37, flexGrow: 1 }}>
-//       {console.log(`frame.length: ${frame.length}`)}
-//       {frame.fields.map((field) => {
-//         console.log(field.type, field.name, field.values.get(0));
-//       })}
-//       {Array.from({ length: frame.length }).map((_, i) => {
-//         let isVisible = true;
-//         if (this.state.input.length) {
-//           let line = '';
-//           frame.fields.map((field) => {
-//             line += ` ${JSON.stringify(field.values.get(i)).replace(/\"/g, '')}`;
-//           });
-//           if (!line.toLowerCase().includes(this.state.input.toLowerCase())) {
-//             isVisible = false;
-//           }
-//         }
-//         return (
-//           <div
-//             key={`ql-row-${i}`}
-//             style={{ display: isVisible ? 'flex' : 'none', borderBottom: 'solid 1px #3d3d3d' }}
-//           >
-//             {frame.fields.map((field, j) => {
-//               const _value = JSON.stringify(field.values.get(i)).replace(/\"/g, '').replace(/\\n/g, '\n');
-//               const _valueCss = valueStyles.find((cs) => _value.includes(cs.pattern))?.style;
-//               const css = _valueCss ? _valueCss : {};
-//               const _className = `ql-data-element ql-name-${field.name.replace(/[@,_]/g, '-')}`;
-//               css['marginRight'] = '1em';
-//               css['alignItems'] = 'flex-start';
-//               css['display'] = 'flex';
-//               if (_value.includes('\n')) {
-//                 const _lines = _value.split('\n');
-//                 const _firstLine = _lines.shift();
-//                 css['flexDirection'] = 'column';
-//                 return (
-//                   <div key={`ql-data-item${i}-${j}`} className={_className} style={css}>
-//                     <div style={{ display: 'flex' }}>
-//                       {_firstLine}
-//                       <button
-//                         className="ql-data-multiitem-button"
-//                         title="Click to open multilines"
-//                         style={{
-//                           display: 'flex',
-//                           backgroundColor: 'rgb(0 0 0 / 0%)',
-//                           border: 'none',
-//                           color: 'orange',
-//                           padding: 0,
-//                           marginLeft: '2em',
-//                         }}
-//                         onClick={() => this.toggleVisibility(`.ql-data-multiitem${i}-${j}`)}
-//                       >
-//                         multiline
-//                       </button>
-//                     </div>
-//                     <div
-//                       className={`ql-data-multiitem${i}-${j}`}
-//                       style={{
-//                         whiteSpace: 'pre-line',
-//                         wordBreak: 'break-all',
-//                         display: this.multilineDisplayStatus(`.ql-data-multiitem${i}-${j}`),
-//                       }}
-//                     >
-//                       {_lines.join('\n')}
-//                     </div>
-//                   </div>
-//                 );
-//               } else {
-//                 return (
-//                   <div key={`ql-data-item${i}-${j}`} className={_className} style={css}>
-//                     {_value}
-//                   </div>
-//                 );
-//               }
-//             })}
-//           </div>
-//         );
-//       })}
-//     </div>
-//   </div>
-//   <div style={{ display: 'flex', borderTop: 'olive solid 1px' }}>
-//     <div style={{ marginRight: '1em', marginTop: '1em' }}>Quick search:</div>
-//     <input
-//       style={{ marginTop: '1em', flexGrow: 1 }}
-//       value={this.state.input}
-//       onInput={(e) => this._setInput(e.target)}
-//       placeholder="Type to search in the list only!"
-//     />
-//   </div>
-// </div>

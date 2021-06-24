@@ -1,6 +1,11 @@
 export interface Dashboard {
-  meta: Meta;
+  meta?: Meta;
   dashboard: DashB;
+  _changed_?: boolean;
+  folderId?: number;
+  folderUid?: string;
+  message: string;
+  overwrite: boolean;
 }
 
 export interface DashB {
@@ -22,7 +27,6 @@ export interface DashB {
   title: string;
   uid: string;
   version: number;
-  _changed_: boolean;
 }
 
 export interface Annotations {
@@ -49,8 +53,11 @@ export interface Panel {
   targets: Target[];
   title: string;
   type: string;
+  _marked_: boolean;
+  _equal_: boolean;
   _visible_: boolean;
   _name_: string;
+  _id_: string;
   _dashboardUid_: string;
 }
 
@@ -123,6 +130,7 @@ export interface Meta {
   hasAcl: boolean;
   isFolder: boolean;
   folderId: number;
+  folderUid: string;
   folderTitle: string;
   folderUrl: string;
   provisioned: boolean;
