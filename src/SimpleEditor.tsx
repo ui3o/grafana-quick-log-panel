@@ -27,7 +27,6 @@ export const SimpleEditor: React.FC<StandardEditorProps<boolean>> = ({ value, on
     <div>
       <ToolbarButton
         icon="share-alt"
-        tooltip="Save changes before migrate the current settings"
         variant="primary"
         onClick={getDashboard}
       >

@@ -1,0 +1,7 @@
+#fetching>div:nth-child(2)>div:nth-child(2) {
+  padding-top: 0;
+}
+
+#fetching>div:nth-child(2)>div:nth-child(2)>div {
+  margin-bottom: 0;
+}

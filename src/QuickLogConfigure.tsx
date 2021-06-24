@@ -7,6 +7,7 @@ import {
   HorizontalGroup,
   Icon,
   Input,
+  LoadingPlaceholder,
   ToolbarButton,
   ToolbarButtonRow,
   VerticalGroup,
@@ -14,6 +15,7 @@ import {
 import { Dashboard, Panel } from 'dto/dashboard.dto';
 import { Dashboards } from 'dto/dashboards.dto';
 import React from 'react';
+import './css/style.css';
 
 interface Props {
   onClose: () => void;
@@ -25,6 +27,7 @@ interface State {
     severity?: AlertVariant;
     title?: string;
   };
+  fetching?: boolean;
   filter: string;
   saveInProgress?: boolean;
   showEqualsOnly?: boolean;
@@ -51,7 +54,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
   }
 
   async initialize() {
-    this.setState({ ...this.state, dashboards: [], panels: [] });
+    this.setState({ ...this.state, dashboards: [], panels: [], fetching: true });
     const response = await fetch(`./api/search?limit=5000`);
     const dashboards: Dashboards[] = await response.json();
     dashboards.forEach(async (d) => {
@@ -85,6 +88,10 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
         }
       }
     });
+    this.setState({
+      ...this.state,
+      fetching: false,
+    });
   }
 
   toggleModal() {
@@ -115,6 +122,11 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
           this.props.onClose();
         }}
       >
+        {this.state.fetching && (
+          <Alert title="" id="fetching" severity="info">
+            <LoadingPlaceholder text="Fetching..." />
+          </Alert>
+        )}
         {this.state.saveStatus?.visible && (
           <Alert
             title={this.state.saveStatus.title ? this.state.saveStatus.title : ''}
@@ -192,7 +204,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
   }
 
   async save() {
-    this.setState({ ...this.state, saveInProgress: true });
+    this.setState({ ...this.state, saveInProgress: true, fetching: true });
     const _dashboards = [...this.state.dashboards];
     this.state.panels.forEach((p) => {
       if (!p._equal_ && p._marked_) {

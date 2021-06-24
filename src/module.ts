@@ -21,6 +21,7 @@ export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOp
       id: 'label',
       path: 'label',
       name: 'Migrate current panel',
+      description: 'Save changes before migrate the current settings',
       editor: SimpleEditor,
     });
 });
