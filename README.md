@@ -50,7 +50,11 @@ During the list browsing possible to quick filter the current list. Type the tex
    ```bash
    yarn build
    ```
+## Docker build
 
+```shell
+docker build --build-arg GRAFANA_API_KEY=${GRAFANA_API_KEY} .
+```
 
 ## Learn more
 
