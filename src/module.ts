@@ -1,7 +1,7 @@
 import { PanelPlugin } from '@grafana/data';
 import { QuickLogOptions } from './types';
 import { QuickLogPanel } from './QuickLogPanel';
-import { SimpleEditor } from 'SimpleEditor';
+import { CustomEditor } from 'CustomEditor';
 
 export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOptions((builder) => {
   return builder
@@ -22,6 +22,6 @@ export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOp
       path: 'label',
       name: 'Migrate current panel',
       description: 'Save changes before migrate the current settings',
-      editor: SimpleEditor,
+      editor: CustomEditor,
     });
 });

@@ -4,11 +4,9 @@ import { Dashboard } from 'dto/dashboard.dto';
 import { QuickLogConfigure } from 'QuickLogConfigure';
 import React from 'react';
 
-export const SimpleEditor: React.FC<StandardEditorProps<boolean>> = ({ value, onChange, item, context }) => {
+export const CustomEditor: React.FC<StandardEditorProps<boolean>> = ({ value, onChange, item, context }) => {
   const [configureOpen, setConfigureOpen] = React.useState<boolean>();
   const [modalVisible, setModalVisible] = React.useState<boolean>();
-
-  console.log(item, context);
 
   const getDashboard = async () => {
     const _uid = location.pathname.split('/d/')[1].split('/')[0];
