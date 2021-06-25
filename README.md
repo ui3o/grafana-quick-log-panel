@@ -1,7 +1,7 @@
 # grafana-quick-log-panel
 Grafana Quick Log Panel Plugin
 
-[![grafana-quicklog-panel plugin usage video](https://yt-embed.herokuapp.com/embed?v=PJylDybkHWw)](https://www.youtube.com/watch?v=PJylDybkHWw "grafana-quicklog-panel plugin usage video")
+[![grafana-quicklog-panel plugin usage video](./resources/quick-log-panel-preview.png)](https://www.youtube.com/watch?v=PJylDybkHWw "grafana-quicklog-panel plugin usage video")
 
 
 ## Options
