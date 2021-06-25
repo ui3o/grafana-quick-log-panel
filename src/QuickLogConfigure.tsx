@@ -220,7 +220,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
               {this.state.saveStatus?.viewLog && (
                 <VerticalGroup>
                   {this.state.saveStatus.msg?.map((m) => {
-                    return <div>{m}</div>;
+                    return <div key={m}>{m}</div>;
                   })}
                 </VerticalGroup>
               )}
@@ -287,7 +287,9 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
         const status: DashboardResponse[] = await response.json();
         saveStatus.msg?.push(`[error] url[${d.meta?.url}] status[${status.map((s) => s.message).join(' + ')}]`);
         saveStatus.status = 'err';
-      } else saveStatus.msg?.push(`[saved] url[${d.meta?.url}] status[success]`);
+      } else {
+        saveStatus.msg?.push(`[saved] url[${d.meta?.url}] status[success]`);
+      }
     }
     this.setState({
       ...this.state,
