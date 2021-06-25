@@ -1,18 +1,6 @@
 import { StandardEditorContext } from '@grafana/data';
-import {
-  Alert,
-  AlertVariant,
-  Checkbox,
-  Drawer,
-  HorizontalGroup,
-  Icon,
-  Input,
-  LoadingPlaceholder,
-  ToolbarButton,
-  ToolbarButtonRow,
-  VerticalGroup,
-} from '@grafana/ui';
-import { Dashboard, Panel } from 'dto/dashboard.dto';
+import { Badge, Checkbox, Drawer, Icon, Input, ToolbarButton, VerticalGroup } from '@grafana/ui';
+import { Dashboard, DashboardResponse, Panel } from 'dto/dashboard.dto';
 import { Dashboards } from 'dto/dashboards.dto';
 import React from 'react';
 import './css/style.css';
@@ -22,11 +10,7 @@ interface Props {
   context: StandardEditorContext<any>;
 }
 interface State {
-  saveStatus?: {
-    visible?: boolean;
-    severity?: AlertVariant;
-    title?: string;
-  };
+  saveStatus?: SaveStatus;
   fetching?: boolean;
   filter: string;
   saveInProgress?: boolean;
@@ -34,6 +18,13 @@ interface State {
   isOpen?: boolean;
   dashboards: Dashboard[];
   panels: Panel[];
+}
+
+interface SaveStatus {
+  status?: 'ok' | 'err';
+  viewLog?: boolean;
+  visible?: boolean;
+  msg?: string[];
 }
 
 export class QuickLogConfigure extends React.PureComponent<Props, State> {
@@ -122,88 +113,147 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
           this.props.onClose();
         }}
       >
-        {this.state.fetching && (
-          <Alert title="" id="fetching" severity="info">
-            <LoadingPlaceholder text="Fetching..." />
-          </Alert>
-        )}
-        {this.state.saveStatus?.visible && (
-          <Alert
-            title={this.state.saveStatus.title ? this.state.saveStatus.title : ''}
-            severity={this.state.saveStatus.severity}
-            onRemove={() => {
-              this.setState({ ...this.state, saveStatus: { visible: false } });
-            }}
-          />
-        )}
-        <VerticalGroup>
-          <Input
-            prefix={this.prefixEl}
-            type="text"
-            placeholder="Type to filter "
-            value={this.state.filter}
-            onInput={(e) => this._setInput(e.target)}
-            disabled={this.state.saveInProgress}
-          />
-          <HorizontalGroup justify="flex-end">
-            <ToolbarButtonRow>
-              <ToolbarButton
-                icon={this.state.showEqualsOnly ? 'arrow-random' : 'exchange-alt'}
-                tooltip={
-                  this.state.showEqualsOnly
-                    ? 'Show only panels with not the same options'
-                    : 'Show only panels with same options'
-                }
-                onClick={() => this.toggleEqualsOnly()}
-                disabled={this.state.saveInProgress}
-              >
-                {this.state.showEqualsOnly ? 'Distinct' : 'Equal'}
-              </ToolbarButton>
-              <ToolbarButton
-                icon={this.isMarkedAny() ? 'circle' : 'check-circle'}
-                tooltip="Select for changes only filtered"
-                variant="active"
-                disabled={this.state.showEqualsOnly || this.state.saveInProgress}
-                onClick={() => this.toggleMarkAll()}
-              >
-                {this.isMarkedAny() ? 'Deselect all' : 'Select all'}
-              </ToolbarButton>
-              <ToolbarButton
-                icon={this.state.saveInProgress ? 'fa fa-spinner' : 'cloud-upload'}
-                tooltip="Save changes"
-                variant="primary"
-                onClick={() => this.save()}
-                disabled={this.state.showEqualsOnly || !this.isAnyChanged() || this.state.saveInProgress}
-              >
-                Save
-              </ToolbarButton>
-            </ToolbarButtonRow>
-          </HorizontalGroup>
-          <div style={{ paddingLeft: '1em' }}>
-            <VerticalGroup>
-              {this.state.panels.map((p) => {
-                return (
-                  <div style={{ display: p._visible_ ? 'block' : 'none' }}>
-                    <Checkbox
-                      key={p._id_}
-                      value={p._equal_ ? true : p._marked_}
-                      onChange={() => {
-                        this.setPanelToEqual(p);
-                      }}
-                      label={p._name_}
-                      disabled={p._equal_ || this.state.saveInProgress}
-                    />
-                  </div>
-                );
-              })}
-            </VerticalGroup>
-          </div>
-        </VerticalGroup>
+        <div
+          className={this.state.fetching || this.state.saveInProgress ? 'disabledLayer' : ''}
+          style={{ paddingRight: '15px' }}
+        >
+          <VerticalGroup>
+            <div style={{ margin: '5px 0px 5px 5px', width: '100%' }}>
+              <Input
+                prefix={this.prefixEl}
+                type="text"
+                placeholder="Type to filter "
+                value={this.state.filter}
+                onInput={(e) => this._setInput(e.target)}
+              />
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                justifyContent: 'space-between',
+                marginLeft: '7px',
+              }}
+            >
+              <div style={{ whiteSpace: 'nowrap' }}>
+                {this.state.fetching && <Badge className="fa-blink" text="Fetching..." color="purple" />}
+                {this.state.saveStatus?.status === 'err' && this.state.saveStatus?.visible && (
+                  <Badge
+                    style={{ cursor: 'pointer' }}
+                    text="Error"
+                    color="red"
+                    onClick={() => {
+                      this.setState({
+                        ...this.state,
+                        saveStatus: { ...this.state.saveStatus, viewLog: !this.state.saveStatus?.viewLog },
+                      });
+                    }}
+                  />
+                )}
+                {this.state.saveStatus?.status === 'ok' && this.state.saveStatus?.visible && (
+                  <Badge text="Saved" className="fa-blink" color="green" />
+                )}
+              </div>
+              {!this.state.saveStatus?.viewLog && (
+                <div className="ql-button-container" style={{ display: 'flex' }}>
+                  <ToolbarButton
+                    icon={this.state.showEqualsOnly ? 'arrow-random' : 'exchange-alt'}
+                    tooltip={
+                      this.state.showEqualsOnly
+                        ? 'Show only panels with not the same options'
+                        : 'Show only panels with same options'
+                    }
+                    onClick={() => this.toggleEqualsOnly()}
+                  >
+                    {this.state.showEqualsOnly ? 'Distinct' : 'Equal'}
+                  </ToolbarButton>
+                  <ToolbarButton
+                    icon={this.isMarkedAny() ? 'circle' : 'check-circle'}
+                    tooltip="Select for changes only filtered"
+                    variant="active"
+                    disabled={this.state.showEqualsOnly}
+                    onClick={() => this.toggleMarkAll()}
+                  >
+                    {this.isMarkedAny() ? 'Deselect all' : 'Select all'}
+                  </ToolbarButton>
+                  <ToolbarButton
+                    icon={this.state.saveInProgress ? 'fa fa-spinner' : 'cloud-upload'}
+                    tooltip="Save changes"
+                    variant="primary"
+                    onClick={() => this.save()}
+                    disabled={this.state.showEqualsOnly || !this.isAnyChanged()}
+                  >
+                    Save
+                  </ToolbarButton>
+                </div>
+              )}
+              {this.state.saveStatus?.viewLog && (
+                <div className="ql-button-container" style={{ display: 'flex' }}>
+                  <ToolbarButton
+                    icon="trash-alt"
+                    tooltip="Clear log"
+                    variant="active"
+                    onClick={() => {
+                      this.setState({
+                        ...this.state,
+                        saveStatus: { ...this.state.saveStatus, msg: [], status: 'ok', visible: false, viewLog: false },
+                      });
+                    }}
+                  >
+                    Clear log
+                  </ToolbarButton>
+                  <ToolbarButton
+                    icon="eye-slash"
+                    tooltip="Hide log view"
+                    variant="primary"
+                    onClick={() => {
+                      this.setState({ ...this.state, saveStatus: { ...this.state.saveStatus, viewLog: false } });
+                    }}
+                  >
+                    Hide log
+                  </ToolbarButton>
+                </div>
+              )}
+            </div>
+            <div style={{ paddingLeft: '1em', fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace' }}>
+              {this.state.saveStatus?.viewLog && (
+                <VerticalGroup>
+                  {this.state.saveStatus.msg?.map((m) => {
+                    return <div>{m}</div>;
+                  })}
+                </VerticalGroup>
+              )}
+              {!this.state.saveStatus?.viewLog && (
+                <VerticalGroup>
+                  {this.state.panels.map((p) => {
+                    if (p._visible_) {
+                      return (
+                        <Checkbox
+                          key={p._id_}
+                          value={p._equal_ ? true : p._marked_}
+                          onChange={() => {
+                            this.setPanelToEqual(p);
+                          }}
+                          label={p._name_}
+                          disabled={p._equal_}
+                        />
+                      );
+                    } else {
+                      return;
+                    }
+                  })}
+                </VerticalGroup>
+              )}
+            </div>
+          </VerticalGroup>
+        </div>
       </Drawer>
     );
   }
 
   async save() {
+    const saveStatus: SaveStatus = { msg: [], status: 'ok', visible: true };
     this.setState({ ...this.state, saveInProgress: true, fetching: true });
     const _dashboards = [...this.state.dashboards];
     this.state.panels.forEach((p) => {
@@ -226,19 +276,32 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
       const _d = { ...d };
       delete _d.meta;
       delete _d._changed_;
-      await fetch(`./api/dashboards/db`, {
+      const response = await fetch(`./api/dashboards/db`, {
         method: 'post',
         body: JSON.stringify(_d),
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      if (!response.ok) {
+        const status: DashboardResponse[] = await response.json();
+        saveStatus.msg?.push(`[error] url[${d.meta?.url}] status[${status.map((s) => s.message).join(' + ')}]`);
+        saveStatus.status = 'err';
+      } else saveStatus.msg?.push(`[saved] url[${d.meta?.url}] status[success]`);
     }
     this.setState({
       ...this.state,
       saveInProgress: false,
-      saveStatus: { title: 'Save: Success', severity: 'success', visible: true },
+      saveStatus,
     });
+    if (saveStatus.status === 'ok') {
+      setTimeout(() => {
+        this.setState({
+          ...this.state,
+          saveStatus: { ...this.state.saveStatus, visible: false },
+        });
+      }, 3500);
+    }
     console.log('save done', _changes);
     await this.initialize();
   }

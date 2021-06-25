@@ -8,6 +8,11 @@ export interface Dashboard {
   overwrite: boolean;
 }
 
+export interface DashboardResponse {
+  classification: string;
+  message: string;
+}
+
 export interface DashB {
   annotations: Annotations;
   editable: boolean;
