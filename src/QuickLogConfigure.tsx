@@ -24,11 +24,11 @@ interface SaveStatus {
   status?: 'ok' | 'err';
   viewLog?: boolean;
   visible?: boolean;
-  msg?: {
+  msg?: Array<{
     msg: string;
     status: string;
     url?: string;
-  }[];
+  }>;
 }
 
 export class QuickLogConfigure extends React.PureComponent<Props, State> {
@@ -229,7 +229,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
                       return (
                         <li key={m.url}>
                           [{m.status}] url[
-                          <a style={{ color: 'rgb(155 181 200)' }} href={m.url} target="_blank">
+                          <a style={{ color: 'rgb(155 181 200)' }} href={m.url} target="_blank" rel="noreferrer">
                             {m.url}
                           </a>
                           ] status[{m.msg}]
