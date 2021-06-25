@@ -24,7 +24,11 @@ interface SaveStatus {
   status?: 'ok' | 'err';
   viewLog?: boolean;
   visible?: boolean;
-  msg?: string[];
+  msg?: {
+    msg: string;
+    status: string;
+    url?: string;
+  }[];
 }
 
 export class QuickLogConfigure extends React.PureComponent<Props, State> {
@@ -125,6 +129,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
                 placeholder="Type to filter "
                 value={this.state.filter}
                 onInput={(e) => this._setInput(e.target)}
+                disabled={this.state.saveStatus?.viewLog}
               />
             </div>
             <div
@@ -219,9 +224,19 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
             <div style={{ paddingLeft: '1em', fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace' }}>
               {this.state.saveStatus?.viewLog && (
                 <VerticalGroup>
-                  {this.state.saveStatus.msg?.map((m) => {
-                    return <div key={m}>{m}</div>;
-                  })}
+                  <ul style={{ marginLeft: '1em' }}>
+                    {this.state.saveStatus.msg?.map((m) => {
+                      return (
+                        <li key={m.url}>
+                          [{m.status}] url[
+                          <a style={{ color: 'rgb(155 181 200)' }} href={m.url} target="_blank">
+                            {m.url}
+                          </a>
+                          ] status[{m.msg}]
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </VerticalGroup>
               )}
               {!this.state.saveStatus?.viewLog && (
@@ -230,6 +245,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
                     if (p._visible_) {
                       return (
                         <Checkbox
+                          className="ql-migration-list-item"
                           key={p._id_}
                           value={p._equal_ ? true : p._marked_}
                           onChange={() => {
@@ -285,10 +301,10 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
       });
       if (!response.ok) {
         const status: DashboardResponse[] = await response.json();
-        saveStatus.msg?.push(`[error] url[${d.meta?.url}] status[${status.map((s) => s.message).join(' + ')}]`);
+        saveStatus.msg?.push({ msg: status.map((s) => s.message).join(' + '), status: 'error', url: d.meta?.url });
         saveStatus.status = 'err';
       } else {
-        saveStatus.msg?.push(`[saved] url[${d.meta?.url}] status[success]`);
+        saveStatus.msg?.push({ msg: 'success', status: 'saved', url: d.meta?.url });
       }
     }
     this.setState({

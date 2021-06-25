@@ -8,6 +8,10 @@
   margin-right: 0.5em;
 }
 
+.ql-migration-list-item>span:nth-child(3) {
+  font-size: 1rem;
+}
+
 .fa-blink {
   animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;
 }
