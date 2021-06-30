@@ -1,38 +1,27 @@
 name: Docker Image CI
 
 on:
-  push:
-    tags:        
-      - "v*.*.*" # Run workflow on version tags, e.g. v1.0.0.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'git ref' # refs/tags/v1.0.0
+        required: true
 
 jobs:
-  init:
-    runs-on: ubuntu-latest
-    outputs:
-      skip: ${{ steps.ci-skip-step.outputs.ci-skip }}
-      skip-not: ${{ steps.ci-skip-step.outputs.ci-skip-not }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - id: ci-skip-step
-        uses: mstachniuk/ci-skip@v1
-        with:
-          commit-filter: 'auto-version'
-
   build:
-    needs: init
-    if: ${{ needs.init.outputs.skip == 'true' }}
     runs-on: ubuntu-latest
-
+    env:
+      GITHUB_WORK_REF: ${{ github.event.inputs.tag }}"
     steps:
     - uses: actions/checkout@v2
+    - name: print GITHUB_WORK_REF
+      run: echo $GITHUB_WORK_REF
     - name: Set GRAFANA_VERSION_NUMBER
       run: GRAFANA=`grep 'FROM grafana/grafana' Dockerfile`; echo "GRAFANA_VERSION_NUMBER=${GRAFANA#FROM grafana/grafana:}" >> $GITHUB_ENV
     - name: Set GIT_TAG
-      run: echo "GIT_TAG=${GITHUB_REF#refs/}" >> $GITHUB_ENV
+      run: echo "GIT_TAG=${GITHUB_WORK_REF#refs/}" >> $GITHUB_ENV
     - name: Set GIT_TAG_VERSION
-      run: echo "GIT_TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      run: echo "GIT_TAG_VERSION=${GITHUB_WORK_REF#refs/tags/v}" >> $GITHUB_ENV
     - name: Print GRAFANA_VERSION_NUMBER
       run: echo ${{env.GRAFANA_VERSION_NUMBER}}
     - name: Print GIT_TAG
