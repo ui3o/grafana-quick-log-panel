@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set GRAFANA_VERSION_NUMBER
-      run: GRAFANA=`grep 'FROM grafana/grafana' Dockerfile`; echo "RELEASE_VERSION_NUMBER=${GRAFANA#FROM grafana/grafana:}" >> $GITHUB_ENV
+      run: GRAFANA=`grep 'FROM grafana/grafana' Dockerfile`; echo "GRAFANA_VERSION_NUMBER=${GRAFANA#FROM grafana/grafana:}" >> $GITHUB_ENV
     - name: Set GIT_TAG
       run: echo "GIT_TAG=${GITHUB_REF#refs/}" >> $GITHUB_ENV
     - name: Print GRAFANA_VERSION_NUMBER
