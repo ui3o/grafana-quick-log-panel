@@ -6,8 +6,25 @@ on:
       - "v*.*.*" # Run workflow on version tags, e.g. v1.0.0.
 
 jobs:
-  build:
+  init:
     runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.ci-skip-step.outputs.ci-skip }}
+      skip-not: ${{ steps.ci-skip-step.outputs.ci-skip-not }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - id: ci-skip-step
+        uses: mstachniuk/ci-skip@v1
+        with:
+          commit-filter: 'auto-version'
+
+  build:
+    needs: init
+    if: ${{ needs.init.outputs.skip == 'true' }}
+    runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
     - name: Set GRAFANA_VERSION_NUMBER
