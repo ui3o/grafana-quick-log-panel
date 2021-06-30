@@ -15,7 +15,7 @@ jobs:
     - name: Set GIT_TAG
       run: echo "GIT_TAG=${GITHUB_REF#refs/}" >> $GITHUB_ENV
     - name: Set GIT_TAG_VERSION
-      run: echo "GIT_TAG_VERSION=${GITHUB_REF#refs/tags/v1}" >> $GITHUB_ENV
+      run: echo "GIT_TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
     - name: Print GRAFANA_VERSION_NUMBER
       run: echo ${{env.GRAFANA_VERSION_NUMBER}}
     - name: Print GIT_TAG
