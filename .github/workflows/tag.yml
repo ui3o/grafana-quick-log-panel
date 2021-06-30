@@ -32,6 +32,8 @@ jobs:
           DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
       run: |
         set -x
+        PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}
+        echo $PACKAGE_VERSION
         GIT_TAG_VERSION=${GITHUB_REF#refs/tags/}
         echo $GIT_TAG_VERSION
         CURREV=$(git rev-parse HEAD)
@@ -48,7 +50,8 @@ jobs:
         git checkout $BRANCH_REF_NAME
         git pull
         # do the version change
-        yarn version --no-git-tag-version --new-version $GIT_TAG_VERSION
+        yarn version --no-git-tag-version --new-version $PACKAGE_VERSION
+        cat package.json
         git commit --allow-empty -m "auto-version $GIT_TAG_VERSION"
         # do the version change
         git tag -f $GIT_TAG_VERSION
