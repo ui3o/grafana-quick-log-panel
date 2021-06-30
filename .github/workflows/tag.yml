@@ -6,23 +6,7 @@ on:
       - "v*.*.*" # Run workflow on version tags, e.g. v1.0.0.
 
 jobs:
-  init:
-    runs-on: ubuntu-latest
-    outputs:
-      skip: ${{ steps.ci-skip-step.outputs.ci-skip }}
-      skip-not: ${{ steps.ci-skip-step.outputs.ci-skip-not }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - id: ci-skip-step
-        uses: mstachniuk/ci-skip@v1
-        with:
-          commit-filter: 'auto-version'
-
   build:
-    needs: init
-    if: ${{ needs.init.outputs.skip == 'false' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -57,4 +41,4 @@ jobs:
         # do the version change
         git tag -f $GIT_TAG_VERSION
         git push --force --atomic https://$DEPLOY_USER:$DEPLOY_API_KEY@$REPOPATH $BRANCH_REF_NAME $GIT_TAG_VERSION
-        curl -X POST -H "Accept: application/vnd.github.v3+json"  -H 'authorization: Bearer $DEPLOY_API_KEY' https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/docker-image.yml/dispatches -d '{"tag":"$GITHUB_REF"}'
+        curl -X POST -H "Accept: application/vnd.github.v3+json"  -u ":$DEPLOY_API_KEY" https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/docker-image.yml/dispatches -d "{\"ref\":\"$GIT_TAG_VERSION\"}"
