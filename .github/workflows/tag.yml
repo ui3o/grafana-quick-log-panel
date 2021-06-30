@@ -17,13 +17,9 @@ jobs:
       run: |
         set -x
         PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}
-        echo $PACKAGE_VERSION
         GIT_TAG_VERSION=${GITHUB_REF#refs/tags/}
-        echo $GIT_TAG_VERSION
         CURREV=$(git rev-parse HEAD)
-        echo $CURREV
         BRANCH_REF_NAME=$(git ls-remote --heads origin | awk -v rev="$CURREV" '{if ($1 == rev) {gsub("refs/heads/", "", $2); print $2}}')
-        echo $BRANCH_REF_NAME
         REPOPATH=$(git remote -v | grep fetch | awk '{print $2}' | sed "s/.*github/github/g")
         echo -e '[user]\n\temail = ui3o.com@gmail.com\n\tname = ui3o.com' >> .git/config
         git config --global http.sslVerify false
@@ -35,11 +31,12 @@ jobs:
         git pull
         # do the version change
         yarn version --no-git-tag-version --new-version $PACKAGE_VERSION
-        # repair which file need to be commit
+        # commit files
         git add package.json
         git commit --allow-empty -m "auto-version $GIT_TAG_VERSION"
         # do the version change
         git tag -f $GIT_TAG_VERSION
         git push --force --atomic https://$DEPLOY_USER:$DEPLOY_API_KEY@$REPOPATH $BRANCH_REF_NAME $GIT_TAG_VERSION
+        # execute other release actions 
         curl -X POST -H "Accept: application/vnd.github.v3+json"  -u ":$DEPLOY_API_KEY" https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/docker-image.yml/dispatches -d "{\"ref\":\"$GIT_TAG_VERSION\"}"
         curl -X POST -H "Accept: application/vnd.github.v3+json"  -u ":$DEPLOY_API_KEY" https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/release.yml/dispatches -d "{\"ref\":\"$GIT_TAG_VERSION\"}"
