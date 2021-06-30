@@ -39,7 +39,11 @@ jobs:
         echo -e '[user]\n\temail = ui3o.com@gmail.com\n\tname = ui3o.com' >> .git/config
         git config --global http.sslVerify false
         # go to ahead branch
+        git fetch --all
+        git reset --hard origin/$BRANCH_REF_NAME
+        git clean -df
         git checkout $BRANCH_REF_NAME
+        git pull
         # do the version change
         yarn version --no-git-tag-version --new-version v1.0.1
         git commit --allow-empty -m "auto-version $GIT_TAG_VERSION"
