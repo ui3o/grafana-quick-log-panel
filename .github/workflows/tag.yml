@@ -57,4 +57,4 @@ jobs:
         # do the version change
         git tag -f $GIT_TAG_VERSION
         git push --force --atomic https://$DEPLOY_USER:$DEPLOY_API_KEY@$REPOPATH $BRANCH_REF_NAME $GIT_TAG_VERSION
-        curl -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/docker-image.yml/dispatches -d '{"tag":"$GITHUB_REF"}
+        curl -X POST -H "Accept: application/vnd.github.v3+json"  -H 'authorization: Bearer $DEPLOY_API_KEY' https://api.github.com/repos/ui3o/grafana-quick-log-panel/actions/workflows/docker-image.yml/dispatches -d '{"tag":"$GITHUB_REF"}
