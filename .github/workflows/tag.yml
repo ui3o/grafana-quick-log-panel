@@ -51,7 +51,8 @@ jobs:
         git pull
         # do the version change
         yarn version --no-git-tag-version --new-version $PACKAGE_VERSION
-        cat package.json
+        # repair which file need to be commit
+        git add package.json
         git commit --allow-empty -m "auto-version $GIT_TAG_VERSION"
         # do the version change
         git tag -f $GIT_TAG_VERSION
