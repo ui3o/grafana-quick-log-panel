@@ -26,6 +26,7 @@ jobs:
     - uses: docker/build-push-action@v2
       with:
         tags: ui3o/grafana-quick-log-panel:${{ env.GRAFANA_VERSION_NUMBER }}
+        push: true
         build-args: |
           GRAFANA_API_KEY=${{ secrets.GRAFANA_API_KEY }}
           GIT_TAG=${{ env.GIT_TAG }}
