@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Auto Tag CI
 
 on:
   push:
