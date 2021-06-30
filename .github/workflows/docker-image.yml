@@ -14,10 +14,14 @@ jobs:
       run: GRAFANA=`grep 'FROM grafana/grafana' Dockerfile`; echo "GRAFANA_VERSION_NUMBER=${GRAFANA#FROM grafana/grafana:}" >> $GITHUB_ENV
     - name: Set GIT_TAG
       run: echo "GIT_TAG=${GITHUB_REF#refs/}" >> $GITHUB_ENV
+    - name: Set GIT_TAG_VERSION
+      run: echo "GIT_TAG_VERSION=${GITHUB_REF#refs/tags/v1}" >> $GITHUB_ENV
     - name: Print GRAFANA_VERSION_NUMBER
       run: echo ${{env.GRAFANA_VERSION_NUMBER}}
     - name: Print GIT_TAG
       run: echo ${{env.GIT_TAG}}
+    - name: Print GIT_TAG_VERSION
+      run: echo ${{env.GIT_TAG_VERSION}}
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
@@ -25,7 +29,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - uses: docker/build-push-action@v2
       with:
-        tags: ui3o/grafana-quick-log-panel:${{ env.GRAFANA_VERSION_NUMBER }}
+        tags: ui3o/grafana-quick-log-panel:${{ env.GRAFANA_VERSION_NUMBER }}-${{ env.GIT_TAG_VERSION }}
         push: true
         build-args: |
           GRAFANA_API_KEY=${{ secrets.GRAFANA_API_KEY }}
