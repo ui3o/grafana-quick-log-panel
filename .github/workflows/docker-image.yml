@@ -1,0 +1,29 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:        
+      - "v*.*.*" # Run workflow on version tags, e.g. v1.0.0.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set GRAFANA_VERSION_NUMBER
+      run: echo "GRAFANA_VERSION_NUMBER=${$(grep "FROM grafana/grafana" Dockerfile)#FROM grafana/grafana:}" >> $GITHUB_ENV
+    - name: Set GIT_TAG
+      run: echo "GIT_TAG=${GITHUB_REF#refs/}" >> $GITHUB_ENV
+    - name: Print GRAFANA_VERSION_NUMBER
+      run: echo ${{env.GRAFANA_VERSION_NUMBER}}
+    - name: Print GIT_TAG
+      run: echo ${{env.GIT_TAG}}
+    - uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: ui3o/grafana-quicklog
+        tags: ${{ env.GRAFANA_VERSION_NUMBER }}
+        build-args: |
+          GRAFANA_API_KEY=${{ secrets.GRAFANA_API_KEY }}
+          GIT_TAG=${{ env.GIT_TAG }}
