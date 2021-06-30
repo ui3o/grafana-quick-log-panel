@@ -2,16 +2,10 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'git ref' # refs/tags/v1.0.0
-        required: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_WORK_REF: ${{ github.event.inputs.tag }}"
     steps:
       - uses: actions/checkout@v2
 
@@ -100,7 +94,7 @@ jobs:
           echo "::set-output name=archive::${GRAFANA_PLUGIN_ARTIFACT}"
           echo "::set-output name=archive-checksum::${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}"
 
-          echo ::set-output name=github-tag::${GITHUB_WORK_REF#refs/*/}
+          echo ::set-output name=github-tag::${GITHUB_REF#refs/*/}
 
       - name: Read changelog
         id: changelog
