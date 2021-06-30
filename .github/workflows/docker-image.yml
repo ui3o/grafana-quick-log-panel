@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Check GRAFANA_VERSION
+      run: grep "FROM grafana/grafana" Dockerfile
     - name: Set GRAFANA_VERSION_NUMBER
       run: echo "GRAFANA_VERSION_NUMBER=${$(grep "FROM grafana/grafana" Dockerfile)#FROM grafana/grafana:}" >> $GITHUB_ENV
     - name: Set GIT_TAG
