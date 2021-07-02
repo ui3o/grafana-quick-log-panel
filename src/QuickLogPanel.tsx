@@ -172,10 +172,8 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                     icon="arrow-up"
                     size="sm"
                     disabled={this.state.isLogContainerOnTop}
-                    variant={this.state.isLogContainerOnTop ? 'secondary' : 'destructive'}
-                    className={
-                      this.state.isLogContainerOnTop ? 'ql-button-scroll-top' : 'ql-button-scroll-top fa-blink'
-                    }
+                    variant="destructive"
+                    className="ql-button-scroll-top"
                     onClick={() => this.logContainer.current?.scroll({ top: 0, behavior: 'smooth' })}
                   />
                 </Tooltip>
