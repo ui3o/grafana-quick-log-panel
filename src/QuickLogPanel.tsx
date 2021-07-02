@@ -157,16 +157,7 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                   })}
                 </div>
               </div>
-              <div
-                style={{ display: 'flex', borderTop: 'olive solid 1px', alignItems: 'center', padding: '0 1em 0 1em' }}
-              >
-                <div style={{ marginRight: '1em', marginTop: '1em' }}>Quick search:</div>
-                <input
-                  style={{ marginTop: '1em', flexGrow: 1 }}
-                  value={this.state.input}
-                  onInput={(e) => this._setInput(e.target)}
-                  placeholder="Type to search in the list only!"
-                />
+              <div style={{ display: 'flex', borderTop: 'olive solid 1px', alignItems: 'center' }}>
                 <Tooltip content="Jump to latest log">
                   <Button
                     icon="arrow-up"
@@ -177,6 +168,13 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                     onClick={() => this.logContainer.current?.scroll({ top: 0, behavior: 'smooth' })}
                   />
                 </Tooltip>
+                <div style={{ marginRight: '1em', marginTop: '1em' }}>Quick search:</div>
+                <input
+                  style={{ marginTop: '1em', flexGrow: 1 }}
+                  value={this.state.input}
+                  onInput={(e) => this._setInput(e.target)}
+                  placeholder="Type to search in the list only!"
+                />
               </div>
             </div>
           );
