@@ -1,4 +1,5 @@
 import { PanelProps } from '@grafana/data';
+import { Button, Tooltip } from '@grafana/ui';
 // import { QuickLogConfigure } from 'QuickLogConfigure';
 import React from 'react';
 import { QuickLogOptions } from 'types';
@@ -6,6 +7,7 @@ import { QuickLogOptions } from 'types';
 interface Props extends PanelProps<QuickLogOptions> {}
 interface State {
   input: string;
+  isLogContainerOnTop: boolean;
   multiLines: {
     [key: string]: boolean;
   };
@@ -16,8 +18,13 @@ interface CustomStyle {
   style: React.CSSProperties;
 }
 
+interface HTMLElement {
+  scrollTop: number;
+}
+
 export class QuickLogPanel extends React.PureComponent<Props, State> {
-  state: State = { input: '', multiLines: {} };
+  state: State = { input: '', multiLines: {}, isLogContainerOnTop: true };
+  logContainer = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
     super(props);
@@ -48,6 +55,10 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
     return this.state.multiLines[id] ? 'block' : 'none';
   }
 
+  onScroll(event: React.UIEvent<HTMLElement>) {
+    this.setState({ ...this.state, isLogContainerOnTop: event.currentTarget.scrollTop === 0 });
+  }
+
   render() {
     const valueStyles: CustomStyle[] = this.cssTransformer(this.props.options.valueStyles);
     console.log('valueStyles val', JSON.stringify(valueStyles));
@@ -64,7 +75,11 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
             >
               <div style={{ display: 'flex', flexGrow: 1 }}>
                 {console.log(`height change: ${this.props.height}`)}
-                <div style={{ overflow: 'auto', height: this.props.height - 37, flexGrow: 1 }}>
+                <div
+                  style={{ overflow: 'auto', height: this.props.height - 37, flexGrow: 1 }}
+                  onScroll={this.onScroll.bind(this)}
+                  ref={this.logContainer}
+                >
                   {console.log(`frame.length: ${frame.length}`)}
                   {frame.fields.map((field) => {
                     console.log(field.type, field.name, field.values.get(0));
@@ -142,7 +157,9 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                   })}
                 </div>
               </div>
-              <div style={{ display: 'flex', borderTop: 'olive solid 1px' }}>
+              <div
+                style={{ display: 'flex', borderTop: 'olive solid 1px', alignItems: 'center', padding: '0 1em 0 1em' }}
+              >
                 <div style={{ marginRight: '1em', marginTop: '1em' }}>Quick search:</div>
                 <input
                   style={{ marginTop: '1em', flexGrow: 1 }}
@@ -150,6 +167,18 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                   onInput={(e) => this._setInput(e.target)}
                   placeholder="Type to search in the list only!"
                 />
+                <Tooltip content="Jump to latest log">
+                  <Button
+                    icon="arrow-up"
+                    size="sm"
+                    disabled={this.state.isLogContainerOnTop}
+                    variant={this.state.isLogContainerOnTop ? 'secondary' : 'destructive'}
+                    className={
+                      this.state.isLogContainerOnTop ? 'ql-button-scroll-top' : 'ql-button-scroll-top fa-blink'
+                    }
+                    onClick={() => this.logContainer.current?.scroll({ top: 0, behavior: 'smooth' })}
+                  />
+                </Tooltip>
               </div>
             </div>
           );
