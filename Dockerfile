@@ -1,4 +1,4 @@
-FROM node:slim AS builder
+FROM node:16-alpine3.15 AS builder
 MAINTAINER ui3o.com <ui3o.com@gmail.com>
 
 ARG GRAFANA_API_KEY
@@ -6,12 +6,12 @@ ENV GRAFANA_API_KEY=$GRAFANA_API_KEY
 ARG GIT_TAG
 ENV GIT_TAG=$GIT_TAG
 
-RUN apt-get update
-RUN apt-get install -y git
+RUN apk add git
 
-RUN git clone https://github.com/ui3o/grafana-quick-log-panel.git /tmp/grafana-quick-log-panel
+COPY . /tmp/grafana-quick-log-panel
+# RUN git clone https://github.com/ui3o/grafana-quick-log-panel.git /tmp/grafana-quick-log-panel
 WORKDIR /tmp/grafana-quick-log-panel
-RUN bash -c "[ ! -z $GIT_TAG ] && git checkout $GIT_TAG && echo == branch: $GIT_TAG || echo == branch: main"
+RUN sh -c "[ ! -z $GIT_TAG ] && git checkout $GIT_TAG && echo == branch: $GIT_TAG || echo == branch: main"
 RUN yarn
 RUN yarn build
 RUN yarn sign --rootUrls http://localhost:3000
