@@ -16,6 +16,6 @@ RUN yarn
 RUN yarn build
 RUN yarn sign --rootUrls http://localhost:3000
 
-FROM grafana/grafana:8.0.3
+FROM grafana/grafana:9.1.6
 RUN mkdir -p /var/lib/grafana/plugins/grafana-quick-log-panel
 COPY --from=builder /tmp/grafana-quick-log-panel/dist /var/lib/grafana/plugins/grafana-quick-log-panel
