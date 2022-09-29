@@ -61,6 +61,9 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
 
   render() {
     const valueStyles: CustomStyle[] = this.cssTransformer(this.props.options.valueStyles);
+    const multilineEnabled: boolean = this.props.options.valueMultiline;
+    const customMapper = this.props.options.valueMapper;
+    const customMapperFunc = new Function(`return ${customMapper}`)();
     console.log('valueStyles val', JSON.stringify(valueStyles));
 
     return (
@@ -88,8 +91,12 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                     let isVisible = true;
                     if (this.state.input.length) {
                       let line = '';
-                      frame.fields.map((field) => {
-                        line += ` ${JSON.stringify(field.values.get(i)).replace(/\"/g, '')}`;
+                      frame.fields.forEach((field) => {
+                        line += ` ${JSON.stringify(
+                          customMapper
+                            ? customMapperFunc({ name: field.name, val: field.values.get(i) })
+                            : field.values.get(i)
+                        ).replace(/\"/g, '')}`;
                       });
                       if (!line.toLowerCase().includes(this.state.input.toLowerCase())) {
                         isVisible = false;
@@ -101,14 +108,20 @@ export class QuickLogPanel extends React.PureComponent<Props, State> {
                         style={{ display: isVisible ? 'flex' : 'none', borderBottom: 'solid 1px #3d3d3d' }}
                       >
                         {frame.fields.map((field, j) => {
-                          const _value = JSON.stringify(field.values.get(i))?.replace(/\"/g, '').replace(/\\n/g, '\n');
+                          const _value = JSON.stringify(
+                            customMapper
+                              ? customMapperFunc({ name: field.name, val: field.values.get(i) })
+                              : field.values.get(i)
+                          )
+                            ?.replace(/\"/g, '')
+                            .replace(/\\n/g, '\n');
                           const _valueCss = valueStyles.find((cs) => _value?.includes(cs.pattern))?.style;
                           const css = _valueCss ? _valueCss : {};
                           const _className = `ql-data-element ql-name-${field.name.replace(/[@,_,.]/g, '-')}`;
                           css['marginRight'] = '1em';
                           css['alignItems'] = 'flex-start';
                           css['display'] = 'flex';
-                          if (_value?.includes('\n')) {
+                          if (_value?.includes('\n') && multilineEnabled) {
                             const _lines = _value.split('\n');
                             const _firstLine = _lines.shift();
                             css['flexDirection'] = 'column';

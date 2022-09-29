@@ -5,6 +5,12 @@ import { CustomEditor } from 'CustomEditor';
 
 export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOptions((builder) => {
   return builder
+    .addBooleanSwitch({
+      name: 'Multiline',
+      path: 'valueMultiline',
+      description: 'Enable multiline collection in the log.',
+      defaultValue: true,
+    })
     .addTextInput({
       name: 'Custom css',
       path: 'customCss',
@@ -20,8 +26,15 @@ export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOp
     .addCustomEditor({
       id: 'label',
       path: 'label',
-      name: 'Migrate current panel',
-      description: 'Save changes before migrate the current settings',
+      name: 'Share current panel',
+      description: 'Save changes before share the current settings',
       editor: CustomEditor,
+    })
+    .addTextInput({
+      settings: { useTextarea: true },
+      name: 'Custom field mapper (javascript)',
+      path: 'valueMapper',
+      description: 'Custom field mapper one function. E.g.: (f)=>f.name+f.val',
+      defaultValue: '',
     });
 });

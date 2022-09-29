@@ -24,7 +24,7 @@ export const CustomEditor: React.FC<StandardEditorProps<boolean>> = ({ value, on
   return (
     <div>
       <ToolbarButton icon="share-alt" variant="primary" onClick={getDashboard}>
-        Migrate
+        Share
       </ToolbarButton>
       <Modal
         title={
@@ -36,7 +36,7 @@ export const CustomEditor: React.FC<StandardEditorProps<boolean>> = ({ value, on
         onDismiss={() => setModalVisible(false)}
         isOpen={modalVisible}
       >
-        You have unsaved changes. Please save your dashboard changes before migration!
+        You have unsaved changes. Please save your dashboard changes before share!
       </Modal>
       {configureOpen && <QuickLogConfigure onClose={() => setConfigureOpen(false)} context={context} />}
     </div>

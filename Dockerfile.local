@@ -1,0 +1,3 @@
+FROM grafana/grafana:9.1.6
+RUN mkdir -p /var/lib/grafana/plugins/grafana-quick-log-panel
+COPY ./dist /var/lib/grafana/plugins/grafana-quick-log-panel

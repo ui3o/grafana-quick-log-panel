@@ -6,7 +6,11 @@ Grafana Quick Log Panel Plugin
 
 ## Options
 
-### 1) Custom css
+### 1) Multiline mode
+
+If the field line has `\n` then a **multiline** button will be added, and the lines will be collected.
+
+### 2) Custom css
 
 Possible to add custom inline css to the panel. Each row has custom class name. To check your current class list, please inspect your DOM.
 
@@ -16,7 +20,7 @@ Example:
 .ql-name-message{flex-grow:1;max-width:54%;}.ql-data-multiitem-button{color:green !important;}
 ```
 
-### 2) Value include list
+### 3) Value include list
 
 Possible to add extra css for the values. Only need to type the filter text and separate the css with `||` double pipe. Syntax: `foo bar ||color:red;`. `foo bar ` is the search text, `color:red;` is the custom css. For the custom css do not need to use `{}` curly brackets.
 
@@ -26,7 +30,20 @@ Example:
 foo bar ||color:red;
 ```
 
-### 3) Quick search
+### 4) Custom mapper
+
+Possible to add custom field mapper. During the rendering on each field the custom mapper will be called.   
+
+Example:
+
+```js
+(filed) => { 
+   return filed.name + filed.val;
+} 
+```
+
+
+### 5) Quick search
 
 During the list browsing possible to quick filter the current list. Type the text. The search text and value lines are converted to lowerCase.  
 

@@ -108,8 +108,8 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
   render() {
     return (
       <Drawer
-        title="Migrate"
-        subtitle="Migrate current QuickLog Panel Settings to other Dashboard panels"
+        title="Share"
+        subtitle="Share current QuickLog Panel Settings to other Dashboard panels"
         closeOnMaskClick={true}
         scrollableContent={true}
         width="40%"
