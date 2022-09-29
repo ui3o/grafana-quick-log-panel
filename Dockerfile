@@ -18,3 +18,8 @@ RUN yarn sign --rootUrls http://localhost:3000
 FROM grafana/grafana:9.1.6
 RUN mkdir -p /var/lib/grafana/plugins/grafana-quick-log-panel
 COPY --from=builder /tmp/grafana-quick-log-panel/dist /var/lib/grafana/plugins/grafana-quick-log-panel
+USER root
+RUN echo -e '#!/bin/sh\n[[ -z "$PLUGIN_ROOT_URL" ]] || sed -e "s|\"http://localhost:3000/\"|$PLUGIN_ROOT_URL|g" -i /var/lib/grafana/plugins/grafana-quick-log-panel/MANIFEST.txt\n$@'>/bin/entry&&chmod ugo+x /bin/entry
+USER 472
+ENTRYPOINT ["entry"]
+CMD ["/run.sh"]

@@ -79,3 +79,9 @@ docker build --build-arg GRAFANA_API_KEY=${GRAFANA_API_KEY} .
 - [Grafana documentation](https://grafana.com/docs/)
 - [Grafana Tutorials](https://grafana.com/tutorials/) - Grafana Tutorials are step-by-step guides that help you make the most of Grafana
 - [Grafana UI Library](https://developers.grafana.com/ui) - UI components to help you build interfaces using Grafana Design System
+
+## Docker run
+
+```shell
+docker run -e PLUGIN_ROOT_URL='"http://localhost:3000/","https://localhost:3000/"' -p 3000:3000 ui3o/grafana-quick-log-panel
+```
