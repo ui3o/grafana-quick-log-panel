@@ -1,6 +1,6 @@
 {
   "name": "quick-log-panel",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Grafana Quick Log Panel Plugin",
   "scripts": {
     "local-image-build": "yarn dev && yarn sign --rootUrls http://localhost:3000 && docker build -f Dockerfile.local .",
