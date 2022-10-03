@@ -3,26 +3,46 @@
   "type": "panel",
   "name": "Quick Log",
   "id": "ui3o-quicklog-panel",
-
   "info": {
     "description": "Grafana Quick Log Panel Plugin",
     "author": {
       "name": "ui3o.com"
     },
-    "keywords": ["panel", "template"],
+    "keywords": [
+      "panel",
+      "template"
+    ],
     "logos": {
       "small": "img/qlogo.svg",
       "large": "img/qlogo.svg"
     },
     "links": [
-      {"name": "Website", "url": "https://github.com/ui3o/grafana-quick-log-panel"},
-      {"name": "License", "url": "https://github.com/ui3o/grafana-quick-log-panel/blob/main/LICENSE"}
+      {
+        "name": "Website",
+        "url": "https://github.com/ui3o/grafana-quick-log-panel"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/ui3o/grafana-quick-log-panel/blob/main/LICENSE"
+      }
     ],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "custom-css-and-search",
+        "path": "img/quicklog-sc1.png"
+      },
+      {
+        "name": "quick-search",
+        "path": "img/quicklog-sc2.png"
+      },
+      {
+        "name": "custom-field-mapper",
+        "path": "img/quicklog-sc3.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
-
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
     "plugins": []
