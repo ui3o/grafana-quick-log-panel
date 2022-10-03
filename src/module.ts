@@ -6,6 +6,12 @@ import { CustomEditor } from 'CustomEditor';
 export const plugin = new PanelPlugin<QuickLogOptions>(QuickLogPanel).setPanelOptions((builder) => {
   return builder
     .addBooleanSwitch({
+      name: 'Latest at bottom',
+      path: 'valueLatestAtBottom',
+      description: 'Latest at bottom or top. True means bottom.',
+      defaultValue: false,
+    })
+    .addBooleanSwitch({
       name: 'Multiline',
       path: 'valueMultiline',
       description: 'Enable multiline collection in the log.',

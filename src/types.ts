@@ -3,4 +3,5 @@ export interface QuickLogOptions {
   customCss: string;
   valueMultiline: boolean;
   valueMapper: string;
+  valueLatestAtBottom: boolean;
 }
