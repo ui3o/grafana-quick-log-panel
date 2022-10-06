@@ -2,8 +2,8 @@ import { StandardEditorContext } from '@grafana/data';
 import { Badge, Checkbox, Drawer, Icon, Input, ToolbarButton, VerticalGroup } from '@grafana/ui';
 import { Dashboard, DashboardResponse, Panel } from 'dto/dashboard.dto';
 import { Dashboards } from 'dto/dashboards.dto';
+import { isEqualsExistsKeys } from 'CustomEditor';
 import React from 'react';
-import _ from 'lodash';
 import './css/style.css';
 
 interface Props {
@@ -61,7 +61,7 @@ export class QuickLogConfigure extends React.PureComponent<Props, State> {
           dashboard.dashboard.panels.forEach((p) => {
             const _panel: Panel = { ...p };
             if (_panel.type === 'ui3o-quicklog-panel') {
-              _panel._equal_ = _.isEqual(_panel.options, this.props.context.options);
+              _panel._equal_ = isEqualsExistsKeys(_panel.options, this.props.context.options);
               _panel._marked_ = false;
               _panel._visible_ = !_panel._equal_;
               _panel._name_ = `${dashboard.meta?.folderTitle}/${dashboard.dashboard.title}/${_panel.title}`;

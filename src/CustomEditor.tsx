@@ -5,18 +5,30 @@ import { QuickLogConfigure } from 'QuickLogConfigure';
 import React from 'react';
 import _ from 'lodash';
 
+export const isEqualsExistsKeys = (src: any, dest: any) => {
+  const srcKeys = Object.keys(src);
+  const destKeys = Object.keys(dest);
+  for (const k of srcKeys) {
+    if (destKeys.some((d) => d === k) && !_.isEqual(src[k], dest[k])) {
+      return false;
+    }
+  }
+  return true;
+};
+
 export const CustomEditor: React.FC<StandardEditorProps<boolean>> = ({ value, onChange, item, context }) => {
   const [configureOpen, setConfigureOpen] = React.useState<boolean>();
   const [modalVisible, setModalVisible] = React.useState<boolean>();
 
   const getDashboard = async () => {
+    console.log('getDashboard');
     if (location.pathname.includes('/d/')) {
       const _uid = location.pathname.split('/d/')[1].split('/')[0];
       const _panelId = Number(new URLSearchParams(window.location.search).get('editPanel'));
       const _boardProp = await fetch(`./api/dashboards/uid/${_uid}`);
       const dashboard: Dashboard = await _boardProp.json();
       const _panel = dashboard.dashboard.panels.filter((p) => p.id === _panelId)[0];
-      if (!_.isEqual(_panel.options, context.options)) {
+      if (!isEqualsExistsKeys(_panel.options, context.options)) {
         setModalVisible(true);
       } else {
         setConfigureOpen(true);
